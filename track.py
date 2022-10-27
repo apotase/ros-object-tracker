@@ -1,5 +1,7 @@
 import argparse
-
+import rospy
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge, CvBridgeError
 import os
 # limit the number of cpus used by high performance libraries
 os.environ["OMP_NUM_THREADS"] = "1"
@@ -306,7 +308,14 @@ def main(opt):
     check_requirements(requirements=ROOT / 'requirements.txt', exclude=('tensorboard', 'thop'))
     run(**vars(opt))
 
+def tracker_callback(data):
+    bridge = CvBridge()
+    cv_image = bridge.imgmsg_to_cv2(data, "bgr8")
 
+    # cv2.destroyAllWindows()
 if __name__ == "__main__":
-    opt = parse_opt()
-    main(opt)
+    rospy.init_node('percept_fusion_tracker')
+    rospy.Subscriber('/kinect2_down/qhd/image_color',Image, tracker_callback,queue_size=1000)
+    rospy.spin()
+    # opt = parse_opt()
+    # main(opt)
