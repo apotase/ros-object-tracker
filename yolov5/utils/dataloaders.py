@@ -186,37 +186,34 @@ class _RepeatSampler:
 
 class LoadImages:
     # YOLOv5 image/video dataloader, i.e. `python detect.py --source image.jpg/vid.mp4`
-    def __init__(self, path, img_size=640, stride=32, auto=True, transforms=None):
+    def __init__(self, image, img_size=640, stride=32, auto=True, transforms=None,):
         files = []
-        for p in sorted(path) if isinstance(path, (list, tuple)) else [path]:
-            p = str(Path(p).resolve())
-            if '*' in p:
-                files.extend(sorted(glob.glob(p, recursive=True)))  # glob
-            elif os.path.isdir(p):
-                files.extend(sorted(glob.glob(os.path.join(p, '*.*'))))  # dir
-            elif os.path.isfile(p):
-                files.append(p)  # files
-            else:
-                raise FileNotFoundError(f'{p} does not exist')
+        # for p in sorted(path) if isinstance(path, (list, tuple)) else [path]:
+        #     p = str(Path(p).resolve())
+        #     if '*' in p:
+        #         files.extend(sorted(glob.glob(p, recursive=True)))  # glob
+        #     elif os.path.isdir(p):
+        #         files.extend(sorted(glob.glob(os.path.join(p, '*.*'))))  # dir
+        #     elif os.path.isfile(p):
+        #         files.append(p)  # files
+        #     else:
+        #         raise FileNotFoundError(f'{p} does not exist')
 
-        images = [x for x in files if x.split('.')[-1].lower() in IMG_FORMATS]
-        videos = [x for x in files if x.split('.')[-1].lower() in VID_FORMATS]
-        ni, nv = len(images), len(videos)
+        images = image
+        # videos = [x for x in files if x.split('.')[-1].lower() in VID_FORMATS]
+        ni = len(images)
 
         self.img_size = img_size
         self.stride = stride
-        self.files = images + videos
-        self.nf = ni + nv  # number of files
-        self.video_flag = [False] * ni + [True] * nv
+        self.files = images
+        self.nf = ni  # number of files
+        self.video_flag = [False] * ni 
         self.mode = 'image'
         self.auto = auto
         self.transforms = transforms  # optional
-        if any(videos):
-            self.new_video(videos[0])  # new video
-        else:
-            self.cap = None
-        assert self.nf > 0, f'No images or videos found in {p}. ' \
-                            f'Supported formats are:\nimages: {IMG_FORMATS}\nvideos: {VID_FORMATS}'
+
+        self.cap = None
+        assert self.nf > 0, f'Supported formats are:\nimages: {IMG_FORMATS}\nvideos: {VID_FORMATS}'
 
     def __iter__(self):
         self.count = 0

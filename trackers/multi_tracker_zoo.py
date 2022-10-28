@@ -8,7 +8,7 @@ def create_tracker(tracker_type, appearance_descriptor_weights, device, half):
     if tracker_type == 'strongsort':
         # initialize StrongSORT
         cfg = get_config()
-        cfg.merge_from_file('trackers/strong_sort/configs/strong_sort.yaml')
+        cfg.merge_from_file('/home/aokaihua/percept_fusion/src/Yolov5_StrongSORT_OSNet-master/trackers/strong_sort/configs/strong_sort.yaml')
 
         strongsort = StrongSORT(
             appearance_descriptor_weights,
