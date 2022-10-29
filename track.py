@@ -11,6 +11,7 @@ import torch
 import cv2
 import message_filters
 import tf
+from percept_fusion.srv import percept_fusion
 # limit the number of cpus used by high performance libraries
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
@@ -44,6 +45,11 @@ class Track:
         self.tf = tf.TransformBroadcaster()
         self.bridge = CvBridge()
         pass
+    def serve(self,signal):
+        if signal.is_activated:
+            return True
+        else:
+            return False
     def listener(self):
         sync1 = message_filters.Subscriber('/kinect2_down/qhd/image_color',Image, queue_size=1000)
         sync2 = message_filters.Subscriber("/kinect2_down/qhd/points", PointCloud2)
@@ -194,4 +200,10 @@ class Track:
 if __name__ == "__main__":
     tracker = Track()
     tracker.init_yolo_track()
-    tracker.listener()
+    service = True
+    if service:
+        s = rospy.Service("percept_fusion", percept_fusion, tracker.serve)
+        rospy.loginfo('percept fusion service init...')
+        rospy.spin()
+    else:
+        tracker.listener()
